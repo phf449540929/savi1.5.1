@@ -106,13 +106,22 @@ void write_cones_geom(const Constellation *pconstellation);
 /* footprints.c */
 char *footprints_on_cmd(int argc, char *argv[]);
 char *footprints_off_cmd(int argc, char *argv[]);
+char *footprint_each_on_cmd(int argc, char *argv[]);
+char *footprint_each_off_cmd(int argc, char *argv[]);
+
 void footprints_rebuild(void);
 void footprints_relocate(const Constellation *pconstellation);
 void footprint_display(Satellite s, const Constellation *pconstellation);
 void footprint_delete(Satellite s);
 void footprints_gv_update(void);
 void footprints_gv_delete(void);
+
 void write_footprints_geom(const Constellation *pconstellation);
+void write_footprint_each_geom(const Constellation *pconstellation);
+
+/* distinguish.c */
+char *distinguish_on_cmd(int argc, char *argv[]);
+char *distinguish_off_cmd(int argc, char *argv[]);
 
 /* coverage.c */
 void redraw_coverage_display(void);

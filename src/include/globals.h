@@ -50,6 +50,8 @@ int geomview_compressed_images; /* FALSE if no zlib or -uncompressed. */
 int geomview_sun_lighting; /* TRUE if we trust geomview's light sources */
 
 int footprints_flag; /* TRUE if we want to see edges, inc sun terminator */
+int distinguish_flag;
+
 int plane_flag; /* TRUE if we want to see equatorial plane */
 int sun_flag; /* TRUE if we want to see sun lighting */
 int fisheye_viewpoint_flag; /* TRUE if we want to plot location on coverage */

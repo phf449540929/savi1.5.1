@@ -123,7 +123,7 @@ proc geomview(update_texture) {} {
 
 proc geomview(update_cones_footprints) {} {
 
-    global geomview_module cones_flag earth_flag footprints_flag
+    global geomview_module cones_flag earth_flag footprints_flag distinguish_flag
 
     if {$geomview_module == 1} {
 	geomview(begin)
@@ -134,16 +134,22 @@ proc geomview(update_cones_footprints) {} {
         if {$flag == 1} {
             set earth_flag 1
         }
-	set flag $footprints_flag
-	set footprints_flag 0
-        if {$flag == 1} {
-	    set footprints_flag 1
-	}
+
 	set flag $cones_flag
 	set cones_flag 0
-        if {$flag == 1} {
+    if {$flag == 1} {
 	    set cones_flag 1
-        }
+    }
+    set flag $footprints_flag
+    set footprints_flag 0
+    if {$flag == 1} {
+        set footprints_flag 1
+    }
+    set flag $distinguish_flag
+    set distinguish_flag 0
+    if {$flag == 1} {
+        set distinguish_flag 1
+    }
 
 	geomview(end)
     }

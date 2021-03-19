@@ -54,6 +54,7 @@ int geomview_sun_lighting = FALSE;
 
 /* footprints are turned off by default */
 int footprints_flag = FALSE;
+int distinguish_flag = FALSE;
 
 /* sunlight is turned off by default */
 int sun_flag = FALSE;

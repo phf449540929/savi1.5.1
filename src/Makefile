@@ -58,6 +58,7 @@ include Makefile_defs_$(ARCH)
 		orbits.c \
 		cones.c \
 		footprints.c \
+		distinguish.c \
 		plane.c \
 		earth.c \
 		stars.c \

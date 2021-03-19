@@ -106,6 +106,9 @@ proc main(build) {} {
     main(constellations_menu) $main_name.mbar.b3
 
     main(rendering_menu) $main_name.mbar.b4
+##
+# proc main(rendering_menu) {submenu} is in this file
+#
 
     set cmd [build_StdFrame $main_name cmd]
 
@@ -191,7 +194,7 @@ proc main(title) {filename} {
 
 proc main(constellations_menu) {submenu} {
 
-    build_Menu $submenu \
+#   build_Menu $submenu \
 	{"Empty space..." "empty(build)" "M"} \
 	{"Ballard rosette..." "rosette(build)"} \
 	{"Crude star..." "star(build)"} \
@@ -213,11 +216,11 @@ proc main(constellations_menu) {submenu} {
 	{"Glonass" "main(constellation) glonass.tcl"} \
 	{"Galileo" "main(constellation) galileo.tcl"} \
 	{} \
-        {"O3b Networks" "main(constellation) o3b-networks.tcl"} \
-        {"Orblink" "main(constellation) orblink.tcl"} \
-        {"LEq0" "main(constellation) leqo.tcl"} \
-        {} \
-        {"ViaSat NGSO" "main(constellation) viasat-ngso.tcl"} \
+	{"O3b Networks" "main(constellation) o3b-networks.tcl"} \
+	{"Orblink" "main(constellation) orblink.tcl"} \
+	{"LEq0" "main(constellation) leqo.tcl"} \
+	{} \
+	{"ViaSat NGSO" "main(constellation) viasat-ngso.tcl"} \
 	{"O3b full global coverage" "main(constellation) o3b-networks-full.tcl"} \
 	{"LeoSat (108)" "main(constellation) leosat.tcl"} \
 	{"OneWeb (720)" "main(constellation) oneweb.tcl"} \
@@ -227,8 +230,8 @@ proc main(constellations_menu) {submenu} {
 	{"Celestri (63)" "main(constellation) celestri.tcl"} \
 	{"SkyBridge (64)" "main(constellation) skybridge-64.tcl"} \
 	{"SkyBridge (80)" "main(constellation) skybridge-80.tcl"} \
-        {"Teledesic (288)" "main(constellation) teledesic-288.tcl"} \
-        {"Teledesic (840)" "main(constellation) teledesic-840.tcl"} \
+	{"Teledesic (288)" "main(constellation) teledesic-288.tcl"} \
+	{"Teledesic (840)" "main(constellation) teledesic-840.tcl"} \
 	{} \
 	{"Aries" "main(constellation) aries.tcl"} \
 	{"Boeing Higgins patent" "main(constellation) us-patent-6726152-boeing.tcl"} \
@@ -246,6 +249,16 @@ proc main(constellations_menu) {submenu} {
 	{"Geosynchronous belt (TLE)" "main(constellation) geo.tle"} \
 	{"Brightest LEO craft (TLE)" "main(constellation) visual.tle"}
 
+    build_Menu $submenu \
+	{"Empty space..." "empty(build)" "M"} \
+	{"Ballard rosette..." "rosette(build)"} \
+	{"Crude star..." "star(build)"} \
+	{} \
+	{"Iridium" "main(constellation) iridium-66.tcl"} \
+	{} \
+	{"Geosynchronous belt (TLE)" "main(constellation) geo.tle"} \
+	{"Brightest LEO craft (TLE)" "main(constellation) visual.tle"}
+
 }
 
 proc main(rendering_menu) {submenu} {
@@ -259,11 +272,12 @@ proc main(rendering_menu) {submenu} {
 	    {"Sphere markers" sphere_sat_flag} \
 	    {"Box markers" box_sat_flag} \
 	    {"Planes markers" planes_sat_flag} \
-            {"Satellite markers" fancy_sat_flag} \
+	    {"Satellite markers" fancy_sat_flag} \
 	    {} \
 	    {"Show satellite orbits" orbits_flag} \
 	    {"Show footprints" footprints_flag} \
 	    {"Show coverage cones" cones_flag} \
+	    {"Show distinguish results" distinguish_flag} \
 	    {} \
 	    {"Show stationary axes" axes_flag} \
 	    {"Show equatorial plane" plane_flag} \
@@ -274,11 +288,16 @@ proc main(rendering_menu) {submenu} {
 	    {"Use simple Earth map" simple_earth_flag} \
 	    {"Use detailed Earth map" fancy_earth_flag} \
 	    {} \
-    	    {"Animate in Geomview" geomview_flag}
+	    {"Animate in Geomview" geomview_flag}
     } else {
 	build_options_menu $submenu \
 	    {"Real-time mode" realtime_flag}
     }
+##
+# the flags above here add function to check by "trace" keyword in goemview_init from init.tcl
+# the function to check
+# proc flag_change {name element op} is in init.tcl
+#
 }
 
 proc main(forw_step) {} {

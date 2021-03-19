@@ -436,7 +436,7 @@ proc coverage(set_angle) v {
 }
 
 proc coverage(update_angle) {} {
-    global coverage_flag coverage_angle cones_flag footprints_flag
+    global coverage_flag coverage_angle cones_flag footprints_flag distinguish_flag
 
     set coverage_angle [expr abs($coverage_angle)]
     if {$coverage_angle > 90} {

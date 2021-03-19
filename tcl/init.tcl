@@ -24,7 +24,8 @@
 
 proc geomview_init {} {
     global satellites_flag box_sat_flag planes_sat_flag fancy_sat_flag \
-	   sphere_sat_flag fast_marker_sat_flag cones_flag footprints_flag \
+	   sphere_sat_flag fast_marker_sat_flag \
+       cones_flag footprints_flag distinguish_flag\
 	   orbits_flag axes_flag stars_flag \
 	   earth_flag simple_earth_flag fancy_earth_flag texture_flag \
 	   geomview_flag geomview_dynamic_texture_flag COLOR
@@ -43,6 +44,11 @@ proc geomview_init {} {
     trace variable orbits_flag w flag_change
     trace variable footprints_flag w flag_change
     trace variable cones_flag w flag_change
+    trace variable distinguish_flag w flag_change
+##
+# it can goto the flag_change() when the flag is convert
+# proc flag_change {name element op} is in this file
+#
 
     trace variable axes_flag w flag_change
     trace variable stars_flag w flag_change
@@ -66,6 +72,7 @@ proc geomview_init {} {
     set orbits_flag 1
     set footprints_flag 0
     set cones_flag 0
+    set distinguish_flag 0
 
     set axes_flag 1
     set stars_flag 0
@@ -197,6 +204,9 @@ proc app_init {} {
     # build top window
     set last_filename ""
     main(build)
+#
+# proc main(build) is in main.tcl
+#
 }
 
 proc flag_change {name element op} {
@@ -249,12 +259,36 @@ proc flag_change {name element op} {
 	    set planes_sat_flag 0
 	    set fancy_sat_flag 0
 	} else {satellites FAST_MARKER_SAT_OFF}
+
     } elseif {$name == "orbits_flag"} {
-	if {$flag == 1} {satellites ORBITS_ON} else {satellites ORBITS_OFF}
+	    if {$flag == 1} {
+	        satellites ORBITS_ON
+	    } else {
+	        satellites ORBITS_OFF
+	    }
     } elseif {$name == "footprints_flag"} {
-	if {$flag == 1} {satellites FOOTPRINTS_ON} else {satellites FOOTPRINTS_OFF}
+	    if {$flag == 1} {
+	        satellites FOOTPRINTS_ON
+	    } else {
+	        satellites FOOTPRINTS_OFF
+	    }
     } elseif {$name == "cones_flag"} {
-	if {$flag == 1} {satellites CONES_ON} else {satellites CONES_OFF}
+	    if {$flag == 1} {
+	        satellites CONES_ON
+	    } else {
+	        satellites CONES_OFF
+	    }
+    } elseif {$name == "distinguish_flag"} {
+        if {$flag == 1} {
+            satellites DISTINGUISH_ON
+        } else {
+            satellites DISTINGUISH_OFF
+        }
+##
+# this is "elseif"
+# if goto a "elseif", it would not goto other "elseif"
+#
+
     } elseif {$name == "axes_flag"} {
 	if {$flag == 1} {satellites AXES_ON} else {satellites AXES_OFF}
     } elseif {$name == "stars_flag"} {

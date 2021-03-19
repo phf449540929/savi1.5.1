@@ -34,44 +34,45 @@
 
 ViewModule view_modules[] = {
 
-  {NULL, NULL, NULL, NULL,
-   NULL, earth_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             earth_off_cmd,          NULL},
 
-  {NULL, NULL, NULL, NULL,
-   NULL, sun_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             sun_off_cmd,            NULL},
 
-  {NULL, NULL, NULL, NULL,
-   NULL, axes_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             axes_off_cmd,           NULL},
 
-  {NULL, NULL, NULL, NULL,
-   NULL, plane_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             plane_off_cmd,          NULL},
 
-  {NULL, NULL, NULL, NULL,
-   NULL, stars_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             stars_off_cmd,          NULL},
 
-  {NULL, NULL, NULL, NULL,
-   NULL, logo_off_cmd, NULL},
+        {NULL,                  NULL,               NULL,              NULL,
+                NULL,             logo_off_cmd,           NULL},
 
-  {write_satellites_geom, NULL, satellite_display, satellites_relocate,
-   satellite_delete, satellites_off_cmd, satellites_gv_delete},
+        {write_satellites_geom, NULL,               satellite_display, satellites_relocate,
+                satellite_delete, satellites_off_cmd,     satellites_gv_delete},
 
-  {write_orbits_geom, NULL, orbit_display, orbits_relocate,
-   orbit_delete, orbits_off_cmd, orbits_gv_delete},
+        {write_orbits_geom,     NULL,               orbit_display,     orbits_relocate,
+                orbit_delete,     orbits_off_cmd,         orbits_gv_delete},
 
-  {write_cones_geom, cones_rebuild, cone_display, cones_relocate,
-   cone_delete, cones_off_cmd, cones_gv_delete},
+        {write_cones_geom,      cones_rebuild,      cone_display,      cones_relocate,
+                cone_delete,      cones_off_cmd,          cones_gv_delete},
 
-  {write_footprints_geom, footprints_rebuild, footprint_display,
-   footprints_relocate,
-   footprint_delete, footprints_off_cmd, footprints_gv_delete}
+        {write_footprints_geom, footprints_rebuild, footprint_display, footprints_relocate,
+                footprint_delete, footprints_off_cmd,     footprints_gv_delete},
+
+        {write_footprints_geom, footprints_rebuild, footprint_display, footprints_relocate,
+                footprint_delete, distinguish_off_cmd, footprints_gv_delete}
 
 };
 
 const int N_VIEW_MODULES = sizeof(view_modules) / sizeof(ViewModule);
 
 CompModule comp_modules[] = {
-  {NULL}
-  ,
+        {NULL},
 };
 
 const int N_COMP_MODULES = sizeof(comp_modules) / sizeof(CompModule);

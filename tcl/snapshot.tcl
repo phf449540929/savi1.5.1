@@ -75,6 +75,8 @@ proc snapshot(save) {} {
     set filename [save(extension) "$filename" ppm]
 
     set footprints_on 0
+    set distinguish_on 0
+
     set texture_off 0
     set marker_off 0
 
@@ -89,6 +91,10 @@ proc snapshot(save) {} {
 	    set footprints_flag 1
 	    set footprints_on 1
 	}
+    if {$distinguish_flag == 0} {
+        set distinguish_flag 1
+        set distinguish_on 1
+    }
     }
 
     # marker blobs are too small; spheres scales.
@@ -109,7 +115,10 @@ proc snapshot(save) {} {
 	set fast_marker_sat_flag 1
     }
     if {$footprints_on == 1} {
-	set footprints_flag 0
+	    set footprints_flag 0
+    }
+    if {$distinguish_on == 1} {
+        set distinguish_flag 0
     }
     if {$texture_off == 1} {
 	set texture_flag 1

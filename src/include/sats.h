@@ -42,7 +42,7 @@ char *realtime_off_cmd(int argc, char *argv[]);
 void set_time(double);
 double current_time(void);
 void satellite_init(void);
-void sats_init(void);
+void time_init(void);
 Constellation *get_constellation(void);
 double get_central_body_radius(void);
 unsigned int sats_update(void);

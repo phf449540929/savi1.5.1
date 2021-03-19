@@ -865,7 +865,7 @@ proc build_options_menu {owner args} {
 
     # create menu
     if {[winfo exists $owner]} {
-	destroy $owner
+	    destroy $owner
     }
     if {$buttons_menu == 1} {
         menu $owner -font $FONT(label)
@@ -875,12 +875,12 @@ proc build_options_menu {owner args} {
 
     # add commands to menu
     foreach arg $args {
-	if {[llength $arg] == 2} {
-	    $owner add checkbutton -label [lindex $arg 0] \
-		-variable [lindex $arg 1]
-	} else {
-	    $owner add separator
-	}
+	    if {[llength $arg] == 2} {
+	        $owner add checkbutton -label [lindex $arg 0] \
+		    -variable [lindex $arg 1]
+	    } else {
+	        $owner add separator
+	    }
     }
 }
 

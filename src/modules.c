@@ -61,11 +61,14 @@ ViewModule view_modules[] = {
         {write_cones_geom,      cones_rebuild,      cone_display,      cones_relocate,
                 cone_delete,      cones_off_cmd,          cones_gv_delete},
 
+        {write_cones_geom,      cones_rebuild,      cone_display,      cones_relocate,
+                cone_delete,      cone_each_off_cmd,          cones_gv_delete},
+
         {write_footprints_geom, footprints_rebuild, footprint_display, footprints_relocate,
                 footprint_delete, footprints_off_cmd,     footprints_gv_delete},
 
         {write_footprints_geom, footprints_rebuild, footprint_display, footprints_relocate,
-                footprint_delete, distinguish_off_cmd, footprints_gv_delete}
+                footprint_delete, footprint_each_off_cmd, footprints_gv_delete}
 
 };
 

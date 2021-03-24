@@ -531,7 +531,7 @@ sats_get_cmd(int argc, char *argv[]) {
         }
 
         sprintf(result,
-                "%s %10.4f %8.3f %12.3f %12.3f %13.3f "
+                "%s %10.4f  %8.3f  %12.3f   %12.3f     %13.3f     "
                 "%10.3f %10.4f %10.4f %10.2f %10.2f %d %d %d",
                 altitude,
                 s->oe.e,
@@ -540,14 +540,12 @@ sats_get_cmd(int argc, char *argv[]) {
                 s->oe.omega * RAD_TO_DEG,
                 s->oe.T,
                 oe_to_period(&(s->oe), constellation.pcb) / 60,
-                oe_to_nodal_precession(&(s->oe),
-                                       constellation.pcb) * RAD_TO_DEG * SECS_PER_DAY,
-                oe_to_apsidal_rotation(&(s->oe),
-                                       constellation.pcb) * RAD_TO_DEG * SECS_PER_DAY,
-                oe_to_apoapsis_altitude(&(s->oe),
-                                        constellation.pcb),
+                oe_to_nodal_precession(&(s->oe), constellation.pcb) * RAD_TO_DEG * SECS_PER_DAY,
+                oe_to_apsidal_rotation(&(s->oe), constellation.pcb) * RAD_TO_DEG * SECS_PER_DAY,
+                oe_to_apoapsis_altitude(&(s->oe), constellation.pcb),
                 oe_to_periapsis_altitude(&(s->oe), constellation.pcb),
-                s->can_display_satellite, s->can_display_orbit,
+                s->can_display_satellite,
+                s->can_display_orbit,
                 s->can_display_coverage);
 
         return result;

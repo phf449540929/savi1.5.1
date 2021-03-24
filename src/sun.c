@@ -52,12 +52,8 @@ sun_on_cmd(int argc, char *argv[]) {
         gv_start();
         sun_place(current_time(), (get_constellation())->pcb);
         if (footprints_flag) {
-
             footprints_off_cmd(argc, argv);
             footprints_on_cmd(argc, argv);
-
-            distinguish_off_cmd(argc, argv);
-            distinguish_on_cmd(argc, argv);
         }
         gv_stop();
     }
@@ -81,12 +77,8 @@ sun_off_cmd(int argc, char *argv[]) {
         if (geomview_sun_lighting) gv_sendfile(AMBIENT_LIGHTING);
         gv_delete_geom("Sun");
         if (footprints_flag) {
-
             footprints_off_cmd(argc, argv);
             footprints_on_cmd(argc, argv);
-
-            distinguish_off_cmd(argc, argv);
-            distinguish_on_cmd(argc, argv);
         }
         gv_stop();
     }

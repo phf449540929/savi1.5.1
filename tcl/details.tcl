@@ -62,9 +62,9 @@ proc details(rebuild) {} {
     global source_comments last_filename comments_text comments_file
 
     if {[eval window(raise) details]} {
-	$comments_file.label configure -text "Comments on $last_filename"
+	    $comments_file.label configure -text "Comments on $last_filename"
 
         $comments_text delete 1.0 end
-	$comments_text insert end $source_comments
+	    $comments_text insert end $source_comments
     }
 }

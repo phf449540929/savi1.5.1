@@ -134,7 +134,7 @@ char *footprints_off_cmd(int argc, char *argv[]) {
  *
  * Routine to display a footprint
  */
-char *footprint_each_on_cmd(int argc, char *argv[]) {
+char *footprint_each_on_cmd(int argc, char *argv[], char *satellite_name) {
     Constellation *pconstellation;
     Satellite_list sl;
     Satellite ps;
@@ -154,17 +154,22 @@ char *footprint_each_on_cmd(int argc, char *argv[]) {
     gv_start();
 
     ps = sl->s;
+
     gv_trans_create(ps);
     footprint_write_geom(ps, pconstellation, TRUE);
 
     sl = sl->next;
 
-    ps = sl->s;
-    gv_trans_create(ps);
-    footprint_write_geom(ps, pconstellation, FALSE);
-    sl = sl->next;
+    while (sl) {
+        ps = sl->s;
+        if (strcmp(ps->name, satellite_name) == 0) {
+            gv_trans_create(ps);
+            footprint_write_geom(ps, pconstellation, FALSE);
+        }
+        sl = sl->next;
+    }
 
-    write_footprint_each_geom(pconstellation);
+    write_footprint_each_geom(pconstellation, satellite_name);
 
     gv_stop();
 
@@ -192,6 +197,7 @@ char *footprint_each_off_cmd(int argc, char *argv[]) {
     transforms_needed &= ~(1 << FOOTPRINTS);
 
     gv_start();
+
     footprints_gv_delete();
     while (sl) {
         footprint_gv_delete(sl->s);
@@ -199,6 +205,7 @@ char *footprint_each_off_cmd(int argc, char *argv[]) {
     }
     footprints_geom_needs_updating = FALSE;
     distinguish_flag = FALSE;
+
     gv_stop();
 
     return EMPTY_str;
@@ -215,7 +222,7 @@ footprints_rebuild() {
     Constellation *pconstellation;
     Satellite_list sl;
 
-    if (!footprints_flag)
+    if (!footprints_flag && !distinguish_flag)
         return;
 
     pconstellation = get_constellation();
@@ -267,7 +274,7 @@ footprints_relocate(const Constellation *pconstellation) {
     Satellite ps;
     unsigned int angle_changed;
 
-    if (!footprints_flag && !distinguish_flag)
+    if (!footprints_flag)
         return;
 
     sl = pconstellation->satellites;
@@ -453,7 +460,7 @@ void write_footprints_geom(const Constellation *pconstellation) {
     Satellite_list sl = pconstellation->satellites;
     int sid;
 
-    if ((footprints_flag || distinguish_flag) && footprints_geom_needs_updating) {
+    if (footprints_flag && footprints_geom_needs_updating) {
         /* write out new list of all satellites */
         gv_send("(geometry Footprints {LIST\n");
 
@@ -479,12 +486,12 @@ void write_footprints_geom(const Constellation *pconstellation) {
     }
 }
 
-void write_footprint_each_geom(const Constellation *pconstellation) {
+void write_footprint_each_geom(const Constellation *pconstellation, char *satellite_name) {
     Satellite ps;
     Satellite_list sl = pconstellation->satellites;
     int sid;
 
-    if ((footprints_flag || distinguish_flag) && footprints_geom_needs_updating) {
+    if (distinguish_flag && footprints_geom_needs_updating) {
         /* write out new list of all satellites */
         gv_send("(geometry Footprints {LIST\n");
 
@@ -492,9 +499,9 @@ void write_footprint_each_geom(const Constellation *pconstellation) {
         if (!sun_flag)
             sl = sl->next;
 
-        if (sl) {
+        while (sl) {
             ps = sl->s;
-            if (ps->can_display_coverage) {
+            if (ps->can_display_coverage && strcmp(ps->name, satellite_name) == 0) {
                 sid = ps->id;
                 fprintf(gv_out,
                         "{ INST transform:trans_%d geom:footprint_%d }\n", sid,

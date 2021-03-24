@@ -204,7 +204,7 @@ proc app_init {} {
     # build top window
     set last_filename ""
     main(build)
-#
+##
 # proc main(build) is in main.tcl
 #
 }
@@ -288,7 +288,6 @@ proc flag_change {name element op} {
 # this is "elseif"
 # if goto a "elseif", it would not goto other "elseif"
 #
-
     } elseif {$name == "axes_flag"} {
 	if {$flag == 1} {satellites AXES_ON} else {satellites AXES_OFF}
     } elseif {$name == "stars_flag"} {

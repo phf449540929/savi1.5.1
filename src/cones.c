@@ -46,9 +46,11 @@ static double t[GV_FOOTPRINT_EDGE_SEGMENTS];
 
 static void
 cone_size(double *radius, double *height, const Satellite s, const
-	  Constellation * pconstellation);
+Constellation *pconstellation);
+
 static void
-cone_write_geom(const Satellite s, const Constellation * pconstellation);
+cone_write_geom(const Satellite s, const Constellation *pconstellation);
+
 static void
 cone_gv_delete(const Satellite s);
 
@@ -57,38 +59,36 @@ cone_gv_delete(const Satellite s);
  *
  * Routine to display cones
  */
-char *
-cones_on_cmd(int argc, char *argv[])
-{
-  Constellation *pconstellation;
-  Satellite_list sl;
-  Satellite ps;
+char *cones_on_cmd(int argc, char *argv[]) {
+    Constellation *pconstellation;
+    Satellite_list sl;
+    Satellite ps;
 
-  if (cones_on_flag)
+    if (cones_on_flag)
+        return EMPTY_str;
+
+    pconstellation = get_constellation();
+    sl = pconstellation->satellites;
+
+    cones_on_flag = TRUE;
+    cones_geom_needs_updating = TRUE;
+
+    transforms_needed |= (1 << CONES);
+
+    gv_start();
+    while (sl) {
+        ps = sl->s;
+        gv_trans_create(ps);
+        cone_write_geom(ps, pconstellation);
+        sl = sl->next;
+    }
+    write_cones_geom(pconstellation);
+    gv_stop();
+
+    /* remember what angle was used */
+    cones_angle_used = coverage_angle;
+
     return EMPTY_str;
-
-  pconstellation = get_constellation();
-  sl = pconstellation->satellites;
-
-  cones_on_flag = TRUE;
-  cones_geom_needs_updating = TRUE;
-
-  transforms_needed |= (1 << CONES);
-
-  gv_start();
-  while (sl) {
-    ps = sl->s;
-    gv_trans_create(ps);
-    cone_write_geom(ps, pconstellation);
-    sl = sl->next;
-  }
-  write_cones_geom(pconstellation);
-  gv_stop();
-
-  /* remember what angle was used */
-  cones_angle_used = coverage_angle;
-
-  return EMPTY_str;
 }
 
 /*
@@ -96,31 +96,101 @@ cones_on_cmd(int argc, char *argv[])
  *
  * Routine to turn off display of cones
  */
-char *
-cones_off_cmd(int argc, char *argv[])
-{
-  Satellite_list sl;
+char *cones_off_cmd(int argc, char *argv[]) {
+    Satellite_list sl;
 
-  if (!cones_on_flag)
+    if (!cones_on_flag)
+        return EMPTY_str;
+
+    sl = get_constellation()->satellites;
+
+    transforms_needed &= ~(1 << CONES);
+
+    gv_start();
+    cones_gv_delete();
+    while (sl) {
+        cone_gv_delete(sl->s);
+        sl = sl->next;
+    }
+    cones_geom_needs_updating = FALSE;
+    cones_on_flag = FALSE;
+    gv_stop();
+
     return EMPTY_str;
-
-  sl = get_constellation()->satellites;
-
-  transforms_needed &= ~(1 << CONES);
-
-  gv_start();
-  cones_gv_delete();
-  while (sl) {
-    cone_gv_delete(sl->s);
-    sl = sl->next;
-  }
-  cones_geom_needs_updating = FALSE;
-  cones_on_flag = FALSE;
-  gv_stop();
-
-  return EMPTY_str;
 }
 
+/*
+ * cone_each_on_cmd()
+ *
+ * Routine to display a cone
+ */
+char *cone_each_on_cmd(int argc, char *argv[], char *satellite_name) {
+    Constellation *pconstellation;
+    Satellite_list sl;
+    Satellite ps;
+
+    if (distinguish_flag) {
+        return EMPTY_str;
+    }
+
+    pconstellation = get_constellation();
+    sl = pconstellation->satellites;
+
+    distinguish_flag = TRUE;
+    cones_geom_needs_updating = TRUE;
+
+    transforms_needed |= (1 << CONES);
+
+    gv_start();
+
+    sl = sl->next;
+    while (sl) {
+        ps = sl->s;
+        if(strcmp(ps->name, satellite_name) == 0){
+            gv_trans_create(ps);
+            cone_write_geom(ps, pconstellation);
+        }
+        sl = sl->next;
+    }
+
+    write_cone_each_geom(pconstellation, satellite_name);
+    gv_stop();
+
+    /* remember what angle was used */
+    cones_angle_used = coverage_angle;
+
+    return EMPTY_str;
+}
+
+/*
+ * cone_each_off_cmd()
+ *
+ * Routine to turn off display of a cone
+ */
+char *cone_each_off_cmd(int argc, char *argv[]) {
+    Satellite_list sl;
+
+    if (!distinguish_flag)
+        return EMPTY_str;
+
+    sl = get_constellation()->satellites;
+
+    transforms_needed &= ~(1 << CONES);
+
+    gv_start();
+
+    cones_gv_delete();
+    while (sl) {
+        cone_gv_delete(sl->s);
+        sl = sl->next;
+    }
+    cones_geom_needs_updating = FALSE;
+    distinguish_flag = FALSE;
+
+    gv_stop();
+
+    return EMPTY_str;
+}
 
 /*
  * cones_rebuild()
@@ -128,28 +198,27 @@ cones_off_cmd(int argc, char *argv[])
  * Routine to resize all the cones currently built
  */
 void
-cones_rebuild()
-{
-  Constellation *pconstellation;
-  Satellite_list sl;
+cones_rebuild() {
+    Constellation *pconstellation;
+    Satellite_list sl;
 
-  if (!cones_on_flag)
-    return;
+    if (!cones_on_flag && !distinguish_flag)
+        return;
 
-  pconstellation = get_constellation();
-  sl = pconstellation->satellites;
+    pconstellation = get_constellation();
+    sl = pconstellation->satellites;
 
-  gv_start();
-  while (sl) {
-    cone_write_geom(sl->s, pconstellation);
-    sl = sl->next;
-  }
-  gv_stop();
+    gv_start();
+    while (sl) {
+        cone_write_geom(sl->s, pconstellation);
+        sl = sl->next;
+    }
+    gv_stop();
 
-  /* remember what angle was used */
-  cones_angle_used = coverage_angle;
+    /* remember what angle was used */
+    cones_angle_used = coverage_angle;
 
-  cones_geom_needs_updating = FALSE;
+    cones_geom_needs_updating = FALSE;
 }
 
 /*
@@ -158,9 +227,8 @@ cones_rebuild()
  * get ready to update drawing in geomview.
  */
 void
-cones_gv_update()
-{
-  cones_geom_needs_updating = TRUE;
+cones_gv_update() {
+    cones_geom_needs_updating = TRUE;
 }
 
 
@@ -170,14 +238,13 @@ cones_gv_update()
  * routine to delete geomview cones object
  */
 void
-cones_gv_delete()
-{
-  if (cones_geom_exists) {
+cones_gv_delete() {
+    if (cones_geom_exists) {
 
-    gv_delete_geom("Cones");
+        gv_delete_geom("Cones");
 
-    cones_geom_exists = FALSE;
-  }
+        cones_geom_exists = FALSE;
+    }
 }
 
 
@@ -188,30 +255,29 @@ cones_gv_delete()
  *
  */
 void
-cones_relocate(const Constellation * pconstellation)
-{
-  Satellite_list sl;
-  Satellite ps;
-  unsigned int angle_changed;
+cones_relocate(const Constellation *pconstellation) {
+    Satellite_list sl;
+    Satellite ps;
+    unsigned int angle_changed;
 
-  if (!cones_on_flag)
-    return;
+    if (!cones_on_flag)
+        return;
 
-  sl = pconstellation->satellites;
-  angle_changed = (cones_angle_used != coverage_angle);
+    sl = pconstellation->satellites;
+    angle_changed = (cones_angle_used != coverage_angle);
 
-  gv_start();
-  while (sl) {
-    ps = sl->s;
-    if (angle_changed || (ps->oe.e > 0)) {
-      cone_write_geom(ps, pconstellation);
+    gv_start();
+    while (sl) {
+        ps = sl->s;
+        if (angle_changed || (ps->oe.e > 0)) {
+            cone_write_geom(ps, pconstellation);
+        }
+        sl = sl->next;
     }
-    sl = sl->next;
-  }
-  gv_stop();
+    gv_stop();
 
-  /* remember what angle was used */
-  cones_angle_used = coverage_angle;
+    /* remember what angle was used */
+    cones_angle_used = coverage_angle;
 }
 
 /*
@@ -222,45 +288,44 @@ cones_relocate(const Constellation * pconstellation)
  */
 static void
 cone_size(double *radius, double *height, const Satellite s, const
-	  Constellation * pconstellation)
-{
-  CentralBody *pcb = pconstellation->pcb;
-  double a, r, theta, c, si, temp;
+Constellation *pconstellation) {
+    CentralBody *pcb = pconstellation->pcb;
+    double a, r, theta, c, si, temp;
 
-  a = s->x_S.r - pcb->radius;
-  if (a <= min_transmit_altitude) {
-    *radius = 0;
-    *height = 0;
-    return;
-  }
-
-  /* coverage_angle is global variable (in degrees) */
-  theta = coverage_angle * DEG_TO_RAD;
-  c = cos(theta);
-  si = sin(theta);
-  r = s->x_S.r / pcb->radius;
-
-  if (MASK_ELEVATION == get_coverage_type()) {
-    temp = sqrt(r * r - c * c);
-    *radius = c * (temp - si) / r;
-    *height = temp * (temp - si) / r;
-  } else {
-    if (r * si < 1) {
-      /* cone intersects earth */
-      if (si == 0) {
-	/* trivial case - theta = 0 */
-	*radius = 0.0;
-	*height = r - 1.0;
-      } else {
-	*radius = sin(asin(r * si) - theta);
-	*height = (*radius) * c / si;
-      }
-    } else {
-      /* cone does not intersect earth */
-      *radius = r * si * c;
-      *height = r * c * c;
+    a = s->x_S.r - pcb->radius;
+    if (a <= min_transmit_altitude) {
+        *radius = 0;
+        *height = 0;
+        return;
     }
-  }
+
+    /* coverage_angle is global variable (in degrees) */
+    theta = coverage_angle * DEG_TO_RAD;
+    c = cos(theta);
+    si = sin(theta);
+    r = s->x_S.r / pcb->radius;
+
+    if (MASK_ELEVATION == get_coverage_type()) {
+        temp = sqrt(r * r - c * c);
+        *radius = c * (temp - si) / r;
+        *height = temp * (temp - si) / r;
+    } else {
+        if (r * si < 1) {
+            /* cone intersects earth */
+            if (si == 0) {
+                /* trivial case - theta = 0 */
+                *radius = 0.0;
+                *height = r - 1.0;
+            } else {
+                *radius = sin(asin(r * si) - theta);
+                *height = (*radius) * c / si;
+            }
+        } else {
+            /* cone does not intersect earth */
+            *radius = r * si * c;
+            *height = r * c * c;
+        }
+    }
 }
 
 /*
@@ -269,32 +334,31 @@ cone_size(double *radius, double *height, const Satellite s, const
  * Write cone geom for a satellite
  */
 static void
-cone_write_geom(const Satellite s, const Constellation * pconstellation)
-{
-  unsigned int i;
+cone_write_geom(const Satellite s, const Constellation *pconstellation) {
+    unsigned int i;
 
-  for (i = 0; i < GV_FOOTPRINT_EDGE_SEGMENTS - 1; i++) {
-    t[i] = 0.0;
-  }
-  t[GV_FOOTPRINT_EDGE_SEGMENTS - 1] = 1.0;
+    for (i = 0; i < GV_FOOTPRINT_EDGE_SEGMENTS - 1; i++) {
+        t[i] = 0.0;
+    }
+    t[GV_FOOTPRINT_EDGE_SEGMENTS - 1] = 1.0;
 
-  /*
-     compute scaling of cone -
-     a rigid body rotation plus a translation
-     will be applied to the cone to place it so
-     that (0,0,0) will be mapped to the position of the satellite
-     and (0,0,-1) will point to the origin
-   */
-  cone_size(t, t + 10, s, pconstellation);
-  t[5] = t[0];
+    /*
+       compute scaling of cone -
+       a rigid body rotation plus a translation
+       will be applied to the cone to place it so
+       that (0,0,0) will be mapped to the position of the satellite
+       and (0,0,-1) will point to the origin
+     */
+    cone_size(t, t + 10, s, pconstellation);
+    t[5] = t[0];
 
-  /* start of gv cone description */
-  fprintf(gv_out,
-	  "(read geometry {define cone_%d { INST transform { ", s->id);
-  for (i = 0; i < GV_FOOTPRINT_EDGE_SEGMENTS; i++) {
-    fprintf(gv_out, "%g ", t[i]);
-  }
-  fprintf(gv_out, "} geom: cone_h } } )\n");
+    /* start of gv cone description */
+    fprintf(gv_out,
+            "(read geometry {define cone_%d { INST transform { ", s->id);
+    for (i = 0; i < GV_FOOTPRINT_EDGE_SEGMENTS; i++) {
+        fprintf(gv_out, "%g ", t[i]);
+    }
+    fprintf(gv_out, "} geom: cone_h } } )\n");
 }
 
 
@@ -304,15 +368,14 @@ cone_write_geom(const Satellite s, const Constellation * pconstellation)
  * Takes a satellite and displays its cone (if turned on).
  */
 void
-cone_display(Satellite s, const Constellation * pconstellation)
-{
-  if (!cones_on_flag)
-    return;
-  cones_geom_needs_updating = TRUE;
+cone_display(Satellite s, const Constellation *pconstellation) {
+    if (!cones_on_flag && !distinguish_flag)
+        return;
+    cones_geom_needs_updating = TRUE;
 
-  gv_start();
-  cone_write_geom(s, pconstellation);
-  gv_stop();
+    gv_start();
+    cone_write_geom(s, pconstellation);
+    gv_stop();
 }
 
 
@@ -322,10 +385,9 @@ cone_display(Satellite s, const Constellation * pconstellation)
  * Takes a satellite and deletes its cone
  */
 static void
-cone_gv_delete(Satellite s)
-{
-  sprintf(name + 5, "%-10d", s->id);
-  gv_delete_handle(name);
+cone_gv_delete(Satellite s) {
+    sprintf(name + 5, "%-10d", s->id);
+    gv_delete_handle(name);
 }
 
 
@@ -336,47 +398,71 @@ cone_gv_delete(Satellite s)
  * ONLY if cones_on_flag == TRUE
  */
 void
-cone_delete(Satellite s)
-{
+cone_delete(Satellite s) {
 
-  if (!cones_on_flag)
-    return;
+    if (!cones_on_flag && !distinguish_flag)
+        return;
 
-  gv_start();
-  cone_gv_delete(s);
-  gv_stop();
+    gv_start();
+    cone_gv_delete(s);
+    gv_stop();
 
-  cones_geom_needs_updating = TRUE;
+    cones_geom_needs_updating = TRUE;
 }
 
 
+void write_cones_geom(const Constellation *pconstellation) {
+    Satellite ps;
+    Satellite_list sl = pconstellation->satellites;
+    int sid;
 
-void
-write_cones_geom(const Constellation * pconstellation)
-{
-  Satellite ps;
-  Satellite_list sl = pconstellation->satellites;
-  int sid;
+    if (cones_on_flag && cones_geom_needs_updating) {
+        /* write out new list of all satellites */
+        gv_send("(geometry Cones {LIST\n");
 
-  if (cones_on_flag && cones_geom_needs_updating) {
-    /* write out new list of all satellites */
-    gv_send("(geometry Cones {LIST\n");
+        /* always skip sunlight cone */
+        sl = sl->next;
 
-    /* always skip sunlight cone */
-    sl = sl->next;
+        while (sl) {
+            ps = sl->s;
+            if (ps->can_display_coverage) {
+                sid = ps->id;
+                fprintf(gv_out, "{ INST transform:trans_%d geom:cone_%d}\n", sid,
+                        sid);
+            }
+            sl = sl->next;
+        }
+        gv_send("})\n");
 
-    while (sl) {
-      ps = sl->s;
-      if (ps->can_display_coverage) {
-	sid = ps->id;
-	fprintf(gv_out, "{ INST transform:trans_%d geom:cone_%d}\n", sid,
-		sid);
-      }
-      sl = sl->next;
+        cones_geom_exists = TRUE;
+        cones_geom_needs_updating = FALSE;
     }
-    gv_send("})\n");
+}
 
-    cones_geom_exists = TRUE;
-    cones_geom_needs_updating = FALSE;
-  }
+void write_cone_each_geom(const Constellation *pconstellation, char *satellite_name) {
+    Satellite ps;
+    Satellite_list sl = pconstellation->satellites;
+    int sid;
+
+    if (distinguish_flag && cones_geom_needs_updating) {
+        /* write out new list of all satellites */
+        gv_send("(geometry Cones {LIST\n");
+
+        /* always skip sunlight cone */
+        sl = sl->next;
+
+        while (sl) {
+            ps = sl->s;
+            if (ps->can_display_coverage && strcmp(ps->name, satellite_name) == 0) {
+                sid = ps->id;
+                fprintf(gv_out, "{ INST transform:trans_%d geom:cone_%d}\n", sid,
+                        sid);
+            }
+            sl = sl->next;
+        }
+        gv_send("})\n");
+
+        cones_geom_exists = TRUE;
+        cones_geom_needs_updating = FALSE;
+    }
 }

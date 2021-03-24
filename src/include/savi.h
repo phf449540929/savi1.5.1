@@ -95,18 +95,23 @@ void write_orbits_geom(const Constellation *pconstellation);
 /* cones.c */
 char *cones_on_cmd(int argc, char *argv[]);
 char *cones_off_cmd(int argc, char *argv[]);
+char *cone_each_on_cmd(int argc, char *argv[], char *satellite_name);
+char *cone_each_off_cmd(int argc, char *argv[]);
+
 void cones_rebuild(void);
 void cones_relocate(const Constellation *pconstellation);
 void cone_display(Satellite, const Constellation *pconstellation);
 void cone_delete(Satellite s);
 void cones_gv_update(void);
 void cones_gv_delete(void);
+
 void write_cones_geom(const Constellation *pconstellation);
+void write_cone_each_geom(const Constellation *pconstellation, char *satellite_name);
 
 /* footprints.c */
 char *footprints_on_cmd(int argc, char *argv[]);
 char *footprints_off_cmd(int argc, char *argv[]);
-char *footprint_each_on_cmd(int argc, char *argv[]);
+char *footprint_each_on_cmd(int argc, char *argv[], char *satellite_name);
 char *footprint_each_off_cmd(int argc, char *argv[]);
 
 void footprints_rebuild(void);
@@ -117,10 +122,10 @@ void footprints_gv_update(void);
 void footprints_gv_delete(void);
 
 void write_footprints_geom(const Constellation *pconstellation);
-void write_footprint_each_geom(const Constellation *pconstellation);
+void write_footprint_each_geom(const Constellation *pconstellation,  char *satellite_name);
 
 /* distinguish.c */
-char *distinguish_on_cmd(int argc, char *argv[]);
+char *distinguish_on_cmd(int argc, char *argv[], char *satellite_name);
 char *distinguish_off_cmd(int argc, char *argv[]);
 
 /* coverage.c */

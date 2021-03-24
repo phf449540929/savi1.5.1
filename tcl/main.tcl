@@ -24,6 +24,7 @@
 
 proc main(build) {} {
     global main_name COLOR FONT TITLE geomview_module last_filename PLATFORM
+    global source_comments
 
     if {[eval window(raise) main]} return
 
@@ -110,20 +111,28 @@ proc main(build) {} {
 # proc main(rendering_menu) {submenu} is in this file
 #
 
+##
+# name of the date
+#
     set cmd [build_StdFrame $main_name cmd]
 
     # needs to be 78 on old 10.4 Mac with supplied Tcl/Tk to avoid crash.
-    set WIDTH 99
+    set WIDTH 105
     if {$PLATFORM == 1} {
         set WIDTH 78
     }
 
     label $cmd.l -text \
-	"no.  semi-major axis  eccentricity  inclination  longitude asc. node  arg. periapsis  time to periapsis  satellite name" \
+	"no.    semi-major axis    eccentricity    inclination    longitude asc. node    arg. periapsis    time to periapsis    satellite name" \
 	-font $FONT(label)
+
+##
+# matrix of the date
+#
     listbox $cmd.lb -yscrollcommand "$cmd.scroll set" \
-	-height 2 -width $WIDTH -selectmode single \
+	-height 10 -width $WIDTH -selectmode single \
 	-font $FONT(fixed) -bg $COLOR(entry)
+
     pack $cmd.l -side top -anchor w
     pack $cmd.l -fill none
     pack $cmd.lb -side left
@@ -141,16 +150,44 @@ proc main(build) {} {
 
     pack $cmd -fill both -expand 1
 
+##
+#  time display
+#
     set cmd0 [build_CmdFrame $main_name cmd0]
 
     build_LabelEntryColumns $cmd0 le0 \
         {dentry "" {delta_t}} \
-	{text "" {"seconds per simulation interval."}} \
-	{label "" {time}} \
-	{label "" {last_filename}}
+	    {text "" {"seconds per simulation interval."}} \
+	    {label "" {time}} \
+	    {label "" {last_filename}}
 
     pack $cmd0 -fill x
 
+##
+# comment of the constellation
+#
+    main(constellation) iridium-66.tcl
+
+    set cmd1 [build_CmdFrame $main_name cmd1]
+
+    build_Label $cmd1 on "Comments on $last_filename"
+    set comments_file $cmd1.on
+
+    $comments_file.label configure -font *-times-medium-i-normal--*-140-*-*-*-*-*-* \
+	    -fg blue
+
+    set comments_text [build_Scrollingtext $cmd1 text 50 10]
+
+    $comments_text insert end "\nThis window describes details of the currently loaded constellation. Further details are in the constellation scripts in SaVi's data/ directory. This window can be closed, and later reopened from the Help menu.\n\n"
+    $comments_text insert end $source_comments
+
+    pack $cmd1.text -side left -anchor w -ipadx 15m -ipady 2m
+
+    pack $cmd1 -anchor w -expand 1 -fill both
+
+##
+# control button
+#
     build_Buttonbar $main_name bb1 \
         {"Restart" {main(restart)}} \
         {"  <  " {main(back_step)}} \
@@ -159,10 +196,17 @@ proc main(build) {} {
         {"   < <   " main(backwards)} \
         {"   > >   " main(forwards)}
 
+##
+# relative button
+#
+    build_DismissButtonbar $main_name dbbar details(dismiss) \
+	    {"View source..." "helpfile(build) $details_source"} \
+	    {"Help..." "helpfile(build) README"}
+
     main(start_satellites)
 
     # show help menu
-    details(build)
+    #details(build)
 
 }
 
@@ -194,60 +238,60 @@ proc main(title) {filename} {
 
 proc main(constellations_menu) {submenu} {
 
-#   build_Menu $submenu \
-	{"Empty space..." "empty(build)" "M"} \
-	{"Ballard rosette..." "rosette(build)"} \
-	{"Crude star..." "star(build)"} \
-	{} \
-	{"Clarke geostationary" "main(constellation) clarke.tcl"} \
-	{"Draim tetrahedral" "main(constellation) draim-4.tcl"} \
-	{"Molnya elliptical" "main(constellation) molnya.tcl"} \
-	{"Tundra elliptical" "main(constellation) tundra.tcl"} \
-	{"Quasi-geostationary" "main(constellation) quasi-geo.tcl"} \
-	{} \
-	{"Globalstar" "main(constellation) globalstar.tcl"} \
-	{"Iridium" "main(constellation) iridium-66.tcl"} \
-	{"Orbcomm" "main(constellation) orbcomm.tcl"} \
-	{"Sirius Radio elliptical" "main(constellation) sirius-radio.tcl"} \
-	{"DMC disaster monitoring" "main(constellation) dmc.tcl"} \
-	{"RapidEye" "main(constellation) rapideye.tcl"} \
-	{} \
-	{"GPS" "main(constellation) gps.tcl"} \
-	{"Glonass" "main(constellation) glonass.tcl"} \
-	{"Galileo" "main(constellation) galileo.tcl"} \
-	{} \
-	{"O3b Networks" "main(constellation) o3b-networks.tcl"} \
-	{"Orblink" "main(constellation) orblink.tcl"} \
-	{"LEq0" "main(constellation) leqo.tcl"} \
-	{} \
-	{"ViaSat NGSO" "main(constellation) viasat-ngso.tcl"} \
-	{"O3b full global coverage" "main(constellation) o3b-networks-full.tcl"} \
-	{"LeoSat (108)" "main(constellation) leosat.tcl"} \
-	{"OneWeb (720)" "main(constellation) oneweb.tcl"} \
-	{} \
-	{"COMMstellation (78)" "main(constellation) commstellation-78.tcl"} \
-	{"NeLS (120)" "main(constellation) nels.tcl"} \
-	{"Celestri (63)" "main(constellation) celestri.tcl"} \
-	{"SkyBridge (64)" "main(constellation) skybridge-64.tcl"} \
-	{"SkyBridge (80)" "main(constellation) skybridge-80.tcl"} \
-	{"Teledesic (288)" "main(constellation) teledesic-288.tcl"} \
-	{"Teledesic (840)" "main(constellation) teledesic-840.tcl"} \
-	{} \
-	{"Aries" "main(constellation) aries.tcl"} \
-	{"Boeing Higgins patent" "main(constellation) us-patent-6726152-boeing.tcl"} \
-	{"Deligo" "main(constellation) deligo.tcl"} \
-	{"@contact" "main(constellation) atcontact.tcl"} \
-	{"Ellipso" "main(constellation) ellipso.tcl"} \
-	{"GS2" "main(constellation) gs2.tcl"} \
-	{"ICO" "main(constellation) ico.tcl"} \
-	{"Macrocell" "main(constellation) macrocell.tcl"} \
-	{"Millimeter elliptical" "main(constellation) mm.tcl"} \
-	{"NUONCE" "main(constellation) nuonce.tcl"} \
-	{"Odyssey" "main(constellation) odyssey.tcl"} \
-	{"Spaceway NGSO" "main(constellation) spaceway-ngso.tcl"} \
-	{} \
-	{"Geosynchronous belt (TLE)" "main(constellation) geo.tle"} \
-	{"Brightest LEO craft (TLE)" "main(constellation) visual.tle"}
+    #build_Menu $submenu \
+	#{"Empty space..." "empty(build)" "M"} \
+	#{"Ballard rosette..." "rosette(build)"} \
+	#{"Crude star..." "star(build)"} \
+	#{} \
+	#{"Clarke geostationary" "main(constellation) clarke.tcl"} \
+	#{"Draim tetrahedral" "main(constellation) draim-4.tcl"} \
+	#{"Molnya elliptical" "main(constellation) molnya.tcl"} \
+	#{"Tundra elliptical" "main(constellation) tundra.tcl"} \
+	#{"Quasi-geostationary" "main(constellation) quasi-geo.tcl"} \
+	#{} \
+	#{"Globalstar" "main(constellation) globalstar.tcl"} \
+	#{"Iridium" "main(constellation) iridium-66.tcl"} \
+	#{"Orbcomm" "main(constellation) orbcomm.tcl"} \
+	#{"Sirius Radio elliptical" "main(constellation) sirius-radio.tcl"} \
+	#{"DMC disaster monitoring" "main(constellation) dmc.tcl"} \
+	#{"RapidEye" "main(constellation) rapideye.tcl"} \
+	#{} \
+	#{"GPS" "main(constellation) gps.tcl"} \
+	#{"Glonass" "main(constellation) glonass.tcl"} \
+	#{"Galileo" "main(constellation) galileo.tcl"} \
+	#{} \
+	#{"O3b Networks" "main(constellation) o3b-networks.tcl"} \
+	#{"Orblink" "main(constellation) orblink.tcl"} \
+	#{"LEq0" "main(constellation) leqo.tcl"} \
+	#{} \
+	#{"ViaSat NGSO" "main(constellation) viasat-ngso.tcl"} \
+	#{"O3b full global coverage" "main(constellation) o3b-networks-full.tcl"} \
+	#{"LeoSat (108)" "main(constellation) leosat.tcl"} \
+	#{"OneWeb (720)" "main(constellation) oneweb.tcl"} \
+	#{} \
+	#{"COMMstellation (78)" "main(constellation) commstellation-78.tcl"} \
+	#{"NeLS (120)" "main(constellation) nels.tcl"} \
+	#{"Celestri (63)" "main(constellation) celestri.tcl"} \
+	#{"SkyBridge (64)" "main(constellation) skybridge-64.tcl"} \
+	#{"SkyBridge (80)" "main(constellation) skybridge-80.tcl"} \
+	#{"Teledesic (288)" "main(constellation) teledesic-288.tcl"} \
+	#{"Teledesic (840)" "main(constellation) teledesic-840.tcl"} \
+	#{} \
+	#{"Aries" "main(constellation) aries.tcl"} \
+	#{"Boeing Higgins patent" "main(constellation) us-patent-6726152-boeing.tcl"} \
+	#{"Deligo" "main(constellation) deligo.tcl"} \
+	#{"@contact" "main(constellation) atcontact.tcl"} \
+	#{"Ellipso" "main(constellation) ellipso.tcl"} \
+	#{"GS2" "main(constellation) gs2.tcl"} \
+	#{"ICO" "main(constellation) ico.tcl"} \
+	#{"Macrocell" "main(constellation) macrocell.tcl"} \
+	#{"Millimeter elliptical" "main(constellation) mm.tcl"} \
+	#{"NUONCE" "main(constellation) nuonce.tcl"} \
+	#{"Odyssey" "main(constellation) odyssey.tcl"} \
+	#{"Spaceway NGSO" "main(constellation) spaceway-ngso.tcl"} \
+	#{} \
+	#{"Geosynchronous belt (TLE)" "main(constellation) geo.tle"} \
+	#{"Brightest LEO craft (TLE)" "main(constellation) visual.tle"}
 
     build_Menu $submenu \
 	{"Empty space..." "empty(build)" "M"} \
@@ -337,14 +381,14 @@ proc main(backwards) {} {
 
     satellites STOP
     if {("OK" == [satellites BACKWARDS]) && ([winfo exists .main])} {
-	.main.bb1.b3 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
-	.main.bb1.b4 configure -bg $COLOR(sbg) -highlightbackground $COLOR(sbg)
-	.main.bb1.b5 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
+	    .main.bb1.b3 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
+	    .main.bb1.b4 configure -bg $COLOR(sbg) -highlightbackground $COLOR(sbg)
+	    .main.bb1.b5 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
     }
     set flag $playbar
     set playbar 1
     if {$flag == 0} {
-	coverage(backwards)
+	    coverage(backwards)
     }
     set playbar 0
 }
@@ -353,15 +397,15 @@ proc main(stop) {} {
     global COLOR playbar
 
     if {("OK" == [satellites STOP]) && ([winfo exists .main])} {
-	.main.bb1.b3 configure -bg $COLOR(sbg) -highlightbackground $COLOR(sbg)
-	.main.bb1.b4 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
-	.main.bb1.b5 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
+	    .main.bb1.b3 configure -bg $COLOR(sbg) -highlightbackground $COLOR(sbg)
+	    .main.bb1.b4 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
+	    .main.bb1.b5 configure -bg $COLOR(bg) -highlightbackground $COLOR(bg)
     }
 
     set flag $playbar
     set playbar 1
     if {$flag == 0} {
-	coverage(stop)
+	    coverage(stop)
     }
     set playbar 0
 }
@@ -397,12 +441,16 @@ proc main(update) {} {
 
     set n [.main.cmd.lb size]
 
+##
+# update the satellite list in main(update_field)
+# proc main(update_field) {i} is in this file
+#
     while {[satellites GET $i] != ""} {
         main(update_field) $i
-	incr i
+	    incr i
     }
     if {$n > 0} {
-	.main.cmd.lb delete $i [expr $i+$n-1]
+	    .main.cmd.lb delete $i [expr $i+$n-1]
     }
 
     if {!$sun_flag} {
@@ -419,15 +467,23 @@ proc main(update_field) {i} {
     set noe [satellites GET $i]
     set name [satellites GET_NAME $i]
     set id [satellites GET_ID $i]
+##
+# GET command is define in SatCmd.c
+#
 
     # don't display everything in results string. Increase to 299 to debug.
-    set length 72
+    set length 82
     if {$id > 9} { incr length -1 }
     if {$id > 99} { incr length -1 }
     if {$id > 999} { incr length -1 }
 
-    set line [list $id [string range $noe 0 $length] $name]
-
+    set line [list $id " " [string range $noe 0 $length] $name]
+##
+# 0 {  2138643.25     0.0000   23.450        0.000        0.000 -15562800.000 } sunlight
+# 1 {     7158.14     0.0000   86.400        0.000        0.000         0.000 } {Iridium (0, 0)}
+# 2 {     7158.14     0.0000   86.400        0.000        0.000       547.921 } {Iridium (0, 1)}
+# ...
+#
     # primitive, but works.
     regsub {\{} $line "" line
     regsub {\}} $line "" line
@@ -699,26 +755,27 @@ proc main(source_file) {filename} {
     set f [open "$filename" r]
     set source_comments ""
     while {[gets $f line] >= 0} {
-	set line [string trim $line]
-	if {[string index $line 0] == "\#"} {
-	    set length [string length "$line"]
-	    if {[string index $line 2] == "*"} {
-		if {$length > 3} {
-		    set line [string range "$line" 4 $length]
-		    if {([string index $line 0] == " ")||($block_end == 1)} {
-			set source_comments "$source_comments\n$line "
-			set block_end 0
-		    } else {
-			set source_comments "$source_comments$line "
-		    }
-		} else {
-		    set source_comments "$source_comments\n\n"
-		}
-	    } else {
-		set block_end 1
+	    set line [string trim $line]
+	    if {[string index $line 0] == "\#"} {
+	        set length [string length "$line"]
+	        if {[string index $line 2] == "*"} {
+		        if {$length > 3} {
+		            set line [string range "$line" 4 $length]
+		            if {([string index $line 0] == " ")||($block_end == 1)} {
+		    	        set source_comments "$source_comments\n$line "
+		    	        set block_end 0
+		            } else {
+		    	        set source_comments "$source_comments$line "
+		            }
+		        } else {
+		            set source_comments "$source_comments\n\n"
+		        }
+	        } else {
+		        set block_end 1
+	        }
 	    }
-	}
     }
+
     close $f
     set details_source "$filename"
 
@@ -728,10 +785,10 @@ proc main(source_file) {filename} {
         puts stderr "      changed minimum transmit altitude from $min_transmit_altitude_old to $min_transmit_altitude km."
     }
     if {$coverage_angle != $coverage_angle_old} {
-	puts stderr "      changed coverage angle from $coverage_angle_old to $coverage_angle degrees."
-	if {$coverage_angle_flag} {
-	    puts stderr "      Coverage angle probably describes mask elevation."
-	}
+	    puts stderr "      changed coverage angle from $coverage_angle_old to $coverage_angle degrees."
+	    if {$coverage_angle_flag} {
+	        puts stderr "      Coverage angle probably describes mask elevation."
+	    }
     }
 
     geomview(update_texture)
@@ -741,10 +798,9 @@ proc main(source_file) {filename} {
 proc main(load_file) {filename} {
     global geomview_module last_filename no_access_flag
 
-
     if {![file exists "$filename"]} {
-	puts stderr "\nSaVi: could not find $filename"
-	return
+	    puts stderr "\nSaVi: could not find $filename"
+	    return
     }
 
     if {$geomview_module == 1} {
@@ -752,16 +808,16 @@ proc main(load_file) {filename} {
     }
     # if filename ends in ".tle" then interpret as a two-line-element file
     if {[string_ends "$filename" ".tle"]} {
-	set last_filename "$filename"
+	    set last_filename "$filename"
 	# tle file
-        # if sunlight is on should really turn it off as misleading.
-	tle_file_input "$filename"
+	# if sunlight is on should really turn it off as misleading.
+	    tle_file_input "$filename"
     } elseif {[string_ends "$filename" ".tcl"]} {
-	set last_filename "$filename"
-	main(source_file) "$filename"
+	    set last_filename "$filename"
+	    main(source_file) "$filename"
     } else {
-	puts stderr "\nSaVi: $filename is not a recognised .tle/.tcl satellites file."
-	puts stderr "      No satellites loaded."
+	    puts stderr "\nSaVi: $filename is not a recognised .tle/.tcl satellites file."
+	    puts stderr "      No satellites loaded."
     }
 
     if {$geomview_module == 1} {

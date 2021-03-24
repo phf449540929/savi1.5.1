@@ -86,10 +86,19 @@ int main(int argc, char *argv[]) {
 
     /* load up a single satellite */
     if (!first_filename) {
-        satellite_init();
+        //satellite_init();
         /**
          * satellite_init() is in sats.c
          */
+        tcl_script("set simple_earth_flag 0");
+        tcl_script("set fancy_earth_flag 1");
+        tcl_script("set fancy_sat_flag 1");
+        tcl_script("set realtime_flag 1");
+        tcl_script("set sun_flag 1");
+        tcl_script("set stars_flag 1");
+        tcl_script("main(forwards)");
+
+        distinguish_on_cmd(argc, argv, "Iridium (1, 1)");
     }
     /* initialise satellites */
     time_init();

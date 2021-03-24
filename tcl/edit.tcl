@@ -173,11 +173,11 @@ proc edit(update) {} {
 
     set n [.main.cmd.lb curselection]
     if {[llength $n] == 0} {
-	edit(reset)
+	    edit(reset)
     } else {
-	set m [expr $n + (1 - $sun_flag)]
-	edit(set) [lindex $m 0]
-	edit(oe)
+	    set m [expr $n + (1 - $sun_flag)]
+	    edit(set) [lindex $m 0]
+	    edit(oe)
     }
 }
 
